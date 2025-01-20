@@ -13,7 +13,7 @@ sepgp.VARS = {
   minep = 0,
   baseaward_ep = 100,
   decay = 0.9,
-  max = 1000,
+  maxbroadcastep = 1000,
   timeout = 60,
   minlevel = 55,
   maxloglines = 500,
@@ -216,7 +216,7 @@ function sepgp:buildMenu()
       hidden = function() return not (admin()) end,
       validate = function(v)
         local n = tonumber(v)
-        return n and n >= 0 and n < sepgp.VARS.max
+        return n and n >= 0 and n < sepgp.VARS.maxbroadcastep
       end
     }
     options.args["gp"] = {
@@ -237,7 +237,7 @@ function sepgp:buildMenu()
       hidden = function() return not (admin()) end,
       validate = function(v)
         local n = tonumber(v)
-        return n and n >= 0 and n < sepgp.VARS.max
+        return n and n >= 0 and n < sepgp.VARS.maxbroadcastep
       end    
     }
     options.args["reserves"] = {
@@ -417,7 +417,7 @@ function sepgp:buildMenu()
       end,
       validate = function(v) 
         local n = tonumber(v)
-        return n and n >= 0 and n <= sepgp.VARS.max
+        return n and n >= 0 and n <= sepgp.VARS.maxbroadcastep
       end,
       hidden = function() return not admin() end,
     }
@@ -1572,7 +1572,7 @@ function sepgp:buildClassMemberTable(roster,epgp)
         c[class].args[name].get = false
         c[class].args[name].set = function(v) sepgp:givename_gp(name, tonumber(v)) sepgp:refreshPRTablets() end
       end
-      c[class].args[name].validate = function(v) return (type(v) == "number" or tonumber(v)) and tonumber(v) < sepgp.VARS.max end
+      c[class].args[name].validate = function(v) return type(v) == "number" or tonumber(v) end
     end
   end
   return c

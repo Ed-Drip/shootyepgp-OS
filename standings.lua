@@ -474,13 +474,13 @@ function sepgp_standings:OnTooltipUpdate()
     local text = C:Colorize(BC:GetHexColor(class), name)
     local text2, text4
     if sepgp_minep > 0 and ep < sepgp_minep then
-      text2 = C:Red(string.format("%.5g", ep))
+      text2 = C:Red(string.format("%d", ep))
       text4 = C:Red(string.format("%.4g", pr))
     else
-      text2 = string.format("%.5g", ep)
+      text2 = string.format("%d", ep)
       text4 = string.format("%.4g", pr)
     end
-    local text3 = string.format("%.4g", gp)    
+    local text3 = string.format("%d", gp)    
     if ((sepgp._playerName) and sepgp._playerName == name) or ((sepgp_main) and sepgp_main == name) then
       text = string.format("(*)%s",text)
       local pr_decay = sepgp:capcalc(ep,gp)

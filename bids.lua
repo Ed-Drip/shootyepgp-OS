@@ -209,16 +209,16 @@ function sepgp_bids:OnTooltipUpdate()
     end
     local text2, text4
     if sepgp_minep > 0 and ep < sepgp_minep then
-      text2 = C:Red(string.format("%.4g", ep))
+      text2 = C:Red(string.format("%d", ep))
       text4 = C:Red(string.format("%.4g", pr))
     else
-      text2 = string.format("%.4g", ep)
+      text2 = string.format("%d", ep)
       text4 = string.format("%.4g", pr)
     end   
     maincat:AddLine(
       "text", namedesc,
       "text2", text2,
-      "text3", string.format("%.4g", gp),
+      "text3", string.format("%d", gp),
       "text4", text4,
       "text5", (main or ""),
       "func", "announceWinnerMS", "arg1", self, "arg2", name, "arg3", pr
@@ -248,16 +248,16 @@ function sepgp_bids:OnTooltipUpdate()
     end
     local text2, text4
     if sepgp_minep > 0 and ep < sepgp_minep then
-      text2 = C:Red(string.format("%.4g", ep))
+      text2 = C:Red(string.format("%d", ep))
       text4 = C:Red(string.format("%.4g", pr))
     else
-      text2 = string.format("%.4g", ep)
+      text2 = string.format("%d", ep)
       text4 = string.format("%.4g", pr)
     end    
     offcat:AddLine(
       "text", namedesc,
       "text2", text2,
-      "text3", string.format("%.4g", gp),
+      "text3", string.format("%d", gp),
       "text4", text4,
       "text5", (main or ""),
       "func", "announceWinnerOS", "arg1", self, "arg2", name, "arg3", pr
