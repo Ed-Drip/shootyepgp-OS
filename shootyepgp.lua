@@ -181,7 +181,7 @@ sepgp.cmdtable = function()
   end
 end
 sepgp.reserves = {}
-sepgp.bids_main,sepgp.bids_off,sepgp.bid_item = {},{},{}
+sepgp.bids,sepgp.bid_item = {},{}
 sepgp.timer = CreateFrame("Frame")
 sepgp.timer.cd_text = ""
 sepgp.timer:Hide()
@@ -210,8 +210,8 @@ function sepgp:buildMenu()
       name = L["+EPs to Raid"],
       desc = L["Award EPs to all raid members."],
       order = 20,
-      get = "suggestedAwardEP",
-      set = function(v) sepgp:award_raid_ep(tonumber(v)) end,
+      get = false,
+      set = function(v) if (v ~= '') then sepgp:award_raid_ep(tonumber(v)); end end,
       usage = "<EP>",
       hidden = function() return not (admin()) end,
       validate = function(v)
@@ -224,6 +224,13 @@ function sepgp:buildMenu()
       name = L["+GPs to Member"],
       desc = L["Account GPs for member."],
       order = 30,
+      hidden = function() return not (admin()) end,
+    }
+    options.args["override_rank"] = {
+      type = "group",
+      name = "Override Rank",
+      desc = "Select Member to override rank for loot priority",
+      order = 31,
       hidden = function() return not (admin()) end,
     }
     options.args["ep_reserves"] = {
@@ -433,8 +440,9 @@ function sepgp:buildMenu()
   if (needInit) or (needRefresh) then
     local members = sepgp:buildRosterTable()
     self:debugPrint(string.format(L["Scanning %d members for EP/GP data. (%s)"],table.getn(members),(sepgp_raidonly and "Raid" or "Full")))
-    options.args["ep"].args = sepgp:buildClassMemberTable(members,"ep")
-    options.args["gp"].args = sepgp:buildClassMemberTable(members,"gp")
+    options.args["ep"].args = sepgp:buildClassMemberTable(members,L["Account EPs to %s."],"<EP>",function(n, v) sepgp:givename_ep(n, tonumber(v)) sepgp:refreshPRTablets() end)
+    options.args["gp"].args = sepgp:buildClassMemberTable(members,L["Account GPs to %s."],"<GP>",function(n, v) sepgp:givename_gp(n, tonumber(v)) sepgp:refreshPRTablets() end)
+    options.args["override_rank"].args = sepgp:buildClassMemberTable(members,"Change %s rank","<Rank>",function(n, v) sepgp:overrideRank(n, v) end)
     if (needInit) then needInit = false end
     if (needRefresh) then needRefresh = false end
   end
@@ -1539,15 +1547,8 @@ function sepgp:buildRosterTable()
   return g
 end
 
-function sepgp:buildClassMemberTable(roster,epgp)
-  local desc,usage
-  if epgp == "ep" then
-    desc = L["Account EPs to %s."]
-    usage = "<EP>"
-  elseif epgp == "gp" then
-    desc = L["Account GPs to %s."]
-    usage = "<GP>"
-  end
+function sepgp:buildClassMemberTable(roster, desc, usage, func)
+
   local c = { }
   for i,member in ipairs(roster) do
     local class,name = member.class, member.name
@@ -1565,14 +1566,16 @@ function sepgp:buildClassMemberTable(roster,epgp)
       c[class].args[name].name = name
       c[class].args[name].desc = string.format(desc,name)
       c[class].args[name].usage = usage
-      if epgp == "ep" then
-        c[class].args[name].get = "suggestedAwardEP"
-        c[class].args[name].set = function(v) sepgp:givename_ep(name, tonumber(v)) sepgp:refreshPRTablets() end
-      elseif epgp == "gp" then
-        c[class].args[name].get = false
-        c[class].args[name].set = function(v) sepgp:givename_gp(name, tonumber(v)) sepgp:refreshPRTablets() end
-      end
-      c[class].args[name].validate = function(v) return type(v) == "number" or tonumber(v) end
+      -- if epgp == "ep" then
+      --   c[class].args[name].get = "suggestedAwardEP"
+      --   c[class].args[name].set = function(v) sepgp:givename_ep(name, tonumber(v)) sepgp:refreshPRTablets() end
+      -- elseif epgp == "gp" then
+      --   c[class].args[name].get = false
+      --   c[class].args[name].set = function(v) sepgp:givename_gp(name, tonumber(v)) sepgp:refreshPRTablets() end
+      -- end
+      -- c[class].args[name].validate = function(v) return type(v) == "number" or tonumber(v) end
+			c[class].args[name].get = false
+			c[class].args[name].set = function(v) func(name, v) end
     end
   end
   return c
@@ -1583,7 +1586,7 @@ end
 ---------------
 function sepgp:parseAlt(name,officernote)
   if (officernote) then
-    local _,_,_,main,_ = string.find(officernote or "","(.*){([%a][%a]%a*)}(.*)")
+    local _,_,_,main,_ = string.find(officernote or "","(.*){(%a%a%a+)}(.*)")
     if type(main)=="string" and (string.len(main) < 13) then
       main = self:camelCase(main)
       local g_name, g_class, g_rank, g_officernote = self:verifyGuildMember(main)
@@ -1816,8 +1819,12 @@ function sepgp:captureBid(text, sender)
     if self:inRaid(sender) then
       if bids_blacklist[sender] == nil then
         for i = 1, GetNumGuildMembers(1) do
-          local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
+          -- local name, rank_name, rank_idx, lvl, class, location, note, officernote, online, _ = GetGuildRosterInfo(i)
+          local name, rank, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
           if name == sender then
+						rank = self:parseRank(name,officernote) or rank
+						spec = mskw_found and 'MS' or 'OS'
+						rank_idx = sepgp:rankPrio_index(rank, spec) or 1000
             local ep = (self:get_ep_v3(name,officernote) or 0) 
             local gp = (self:get_gp_v3(name,officernote) or sepgp.VARS.basegp)
             local main_name
@@ -1829,21 +1836,8 @@ function sepgp:captureBid(text, sender)
                 main_name = main
               end
             end
-            if (mskw_found) then
-              bids_blacklist[sender] = true
-              if (sepgp_altspool) and (main_name) then
-                table.insert(sepgp.bids_main,{name,class,ep,gp,ep/gp,main_name})
-              else
-                table.insert(sepgp.bids_main,{name,class,ep,gp,ep/gp})
-              end
-            elseif (oskw_found) then
-              bids_blacklist[sender] = true
-              if (sepgp_altspool) and (main_name) then
-                table.insert(sepgp.bids_off,{name,class,ep,gp,ep/gp,main_name})
-              else
-                table.insert(sepgp.bids_off,{name,class,ep,gp,ep/gp})
-              end
-            end
+						bids_blacklist[sender] = true
+						table.insert(sepgp.bids,{name,class,rank,spec,rank_idx,ep,(ep/gp),main_name})
             sepgp_bids:Toggle(true)
             return
           end
@@ -1858,8 +1852,7 @@ function sepgp:clearBids(reset)
     self:debugPrint(L["Clearing old Bids"])
   end
   sepgp.bid_item = {}
-  sepgp.bids_main = {}
-  sepgp.bids_off = {}
+  sepgp.bids = {}
   bids_blacklist = {}
   if self:IsEventScheduled("shootyepgpBidTimeout") then
     self:CancelScheduledEvent("shootyepgpBidTimeout")

@@ -196,7 +196,7 @@ function sepgp_standings:getRolesClass(roster)
   local roster_num = table.getn(roster)
   for i=1,roster_num do
     local player = roster[i]
-    local name, lclass, armor_class, ep, gp, pr = unpack(player)
+    local name, lclass, armor_class, rank, ep, gp, pr, rank_idx = unpack(player)
     local class = class_cache[lclass]
     local roles = class_to_role[class]
     if not (roles) then
@@ -206,7 +206,7 @@ function sepgp_standings:getRolesClass(roster)
         if i==1 then
           player[3]=role
         else
-          table.insert(roster,{player[1],player[2],role,player[4],player[5],player[6]})
+          table.insert(roster,{player[1],player[2],role,player[4],player[5],player[6],player[7],player[8]})
         end
       end      
     end
@@ -343,27 +343,22 @@ function sepgp_standings:ToggleRaidOnly()
 end
 
 local pr_sorter_standings = function(a,b)
-  if sepgp_minep > 0 then
-    local a_over = a[4]-sepgp_minep >= 0
-    local b_over = b[4]-sepgp_minep >= 0
-    if a_over and b_over or (not a_over and not b_over) then
-      if a[6] ~= b[6] then
-        return tonumber(a[6]) > tonumber(b[6])
-      else
-        return tonumber(a[4]) > tonumber(b[4])
-      end
-    elseif a_over and (not b_over) then
-      return true
-    elseif b_over and (not a_over) then
-      return false
-    end
-  else
-    if a[6] ~= b[6] then
-      return tonumber(a[6]) > tonumber(b[6])
-    else
-      return tonumber(a[4]) > tonumber(b[4])
-    end
-  end
+	_, _, _, _, a_ep, _, a_pr, a_rank_idx = unpack(a)
+	_, _, _, _, b_ep, _, b_pr, b_rank_idx = unpack(b)
+	if a_rank_idx == b_rank_idx then
+		local a_over, b_over
+		if sepgp_minep > 0 then
+			a_over = a_ep >= sepgp_minep
+			b_over = b_ep >= sepgp_minep
+		end
+		if a_over == b_over then
+			return a_pr == b_pr and a_ep > b_ep or a_pr > b_pr
+		else
+			return a_over
+		end
+	else
+		return a_rank_idx < b_rank_idx
+	end
 end
 -- Builds a standings table with record:
 -- name, class, armor_class, roles, EP, GP, PR
@@ -379,7 +374,7 @@ function sepgp_standings:BuildStandingsTable()
   end
   sepgp.alts = {}
   for i = 1, GetNumGuildMembers(1) do
-    local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
+    local name, rank, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
     local ep = (sepgp:get_ep_v3(name,officernote) or 0) 
     local gp = (sepgp:get_gp_v3(name,officernote) or sepgp.VARS.basegp)
     local main, main_class, main_rank = sepgp:parseAlt(name,officernote)
@@ -395,15 +390,20 @@ function sepgp_standings:BuildStandingsTable()
       sepgp.alts[main][name] = class
     end
     local armor_class = self:getArmorClass(class)
-    if ep > 0 then
-      if (sepgp_raidonly) and next(r) then
-        if r[name] then
-          table.insert(t,{name,class,armor_class,ep,gp,ep/gp})
-        end
-      else
-      	table.insert(t,{name,class,armor_class,ep,gp,ep/gp})
-      end
-    end
+		rank = sepgp:parseRank(name,officernote) or rank
+		local rank_idx = sepgp:rankPrio_index(rank, 'MS') or 1000
+		if ep>0 and ((not sepgp_raidonly) or next(r) and r[name]) then
+			table.insert(t,{name,class,armor_class,rank,ep,gp,ep/gp,rank_idx})
+		end
+    -- if ep > 0 then
+    --   if (sepgp_raidonly) and next(r) then
+    --     if r[name] then
+    --       table.insert(t,{name,class,armor_class,ep,gp,ep/gp})
+    --     end
+    --   else
+    --   	table.insert(t,{name,class,armor_class,ep,gp,ep/gp})
+    --   end
+    -- end
   end
   if (sepgp_groupbyclass) then
     table.sort(t, function(a,b)
@@ -429,16 +429,17 @@ end
 
 function sepgp_standings:OnTooltipUpdate()
   local cat = T:AddCategory(
-      "columns", 4,
+      "columns", 5,
       "text",  C:Orange(L["Name"]),   "child_textR",    1, "child_textG",    1, "child_textB",    1, "child_justify",  "LEFT",
-      "text2", C:Orange(L["ep"]),     "child_text2R",   1, "child_text2G",   1, "child_text2B",   1, "child_justify2", "RIGHT",
-      "text3", C:Orange(L["gp"]),     "child_text3R",   1, "child_text3G",   1, "child_text3B",   1, "child_justify3", "RIGHT",
-      "text4", C:Orange(L["pr"]),     "child_text4R",   1, "child_text4G",   1, "child_text4B",   0, "child_justify4", "RIGHT"
+      "text2", C:Orange('Rank'),      "child_text2R",   1, "child_text2G",   1, "child_text2B",   1, "child_justify1", "RIGHT",
+      "text3", C:Orange(L["ep"]),     "child_text3R",   1, "child_text3G",   1, "child_text3B",   1, "child_justify2", "RIGHT",
+      "text4", C:Orange(L["gp"]),     "child_text4R",   1, "child_text4G",   1, "child_text4B",   1, "child_justify3", "RIGHT",
+      "text5", C:Orange(L["pr"]),     "child_text5R",   1, "child_text5G",   1, "child_text5B",   0, "child_justify4", "RIGHT"
     )
   local t = self:BuildStandingsTable()
   local separator
   for i = 1, table.getn(t) do
-    local name, class, armor_class, ep, gp, pr = unpack(t[i])
+    local name, class, armor_class, rank, ep, gp, pr = unpack(t[i])
     if (sepgp_groupbyarmor) or (sepgp_groupbyrole) then
       if not (separator) then
         if (sepgp_groupbyarmor) then
@@ -451,7 +452,8 @@ function sepgp_standings:OnTooltipUpdate()
             "text", C:Green(separator),
             "text2", "",
             "text3", "",
-            "text4", ""
+            "text4", "",
+            "text5", ""
           )
         end
       else
@@ -466,33 +468,35 @@ function sepgp_standings:OnTooltipUpdate()
             "text", C:Green(separator),
             "text2", "",
             "text3", "",
-            "text4", ""
+            "text4", "",
+            "text5", ""
           )          
         end
       end
     end
     local text = C:Colorize(BC:GetHexColor(class), name)
-    local text2, text4
+    local text3, text5
     if sepgp_minep > 0 and ep < sepgp_minep then
-      text2 = C:Red(string.format("%d", ep))
-      text4 = C:Red(string.format("%.4g", pr))
+      text3 = C:Red(string.format("%d", ep))
+      text5 = C:Red(string.format("%.4g", pr))
     else
-      text2 = string.format("%d", ep)
-      text4 = string.format("%.4g", pr)
+      text3 = string.format("%d", ep)
+      text5 = string.format("%.4g", pr)
     end
-    local text3 = string.format("%d", gp)    
+    local text4 = string.format("%d", gp)    
     if ((sepgp._playerName) and sepgp._playerName == name) or ((sepgp_main) and sepgp_main == name) then
       text = string.format("(*)%s",text)
       local pr_decay = sepgp:capcalc(ep,gp)
       if pr_decay < 0 then
-        text4 = string.format("%s(|cffff0000%.4g|r)",text4,pr_decay)
+        text5 = string.format("%s(|cffff0000%.4g|r)",text5,pr_decay)
       end
     end
     cat:AddLine(
       "text", text,
-      "text2", text2,
+      "text2", rank,
       "text3", text3,
-      "text4", text4
+      "text4", text4,
+      "text5", text5
     )
   end
 end

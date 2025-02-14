@@ -36,6 +36,7 @@ Libs\FuBarPlugin-2.0\FuBarPlugin-2.0.lua
 
 localization.lua
 shootyepgp.lua
+ranks.lua
 migrations.lua
 prices.lua
 standings.lua
