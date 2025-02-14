@@ -37,6 +37,11 @@ Addon has been designed so that basic member functionality is usable even withou
 - Type `/x +` (where x is the number of the custom channel) or `/x +MainName` if on an alt to respond to a standby list afk check.  
 Having the addon makes everything more convenient, but is not mandatory.
 
+## features by DRepetsky
+- allows rank priority, defined in ranks.lua
+- allows rank overriding in case some officer alt needs admin rights and alt priority
+- simplifies ML by allowing to ctrl-click bid to give item, or shift-click to process tmog traded items
+
 ## epgp basics and help
 [shootyepgp wiki](https://github.com/Road-block/shootyepgp/wiki)
 
