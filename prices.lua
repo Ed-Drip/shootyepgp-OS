@@ -2,6 +2,9 @@ local prices = {
     -----------------
     --- Naxxramas ---
     -----------------
+  [55581] - {160,"T3"}; --T3 Ring Token
+  [55582] - {160,"T3"}; --T3 Ring Token
+  [55581] - {160,"T3"}; --T3 Ring Token
   [22349] = {148,"T3"}; --T3 Chest Token
   [22350] = {148,"T3"}; --T3 Chest Token
   [22351] = {148,"T3"}; --T3 Chest Token
@@ -403,6 +406,7 @@ local prices = {
   [21614] = {4,"T2.5"}; --Wormhide Protector
   [55554] = {80,"T2.5"}; --Carapace Handguards
   [55553] = {80,"T2.5"}; --Gloves of the Primordial Burrower
+  [55555] = {120, "T2.5"}; --Ivonor, Maiden's Mallet
 
     -----------------------
     --- Emerald Sanctum ---
