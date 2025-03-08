@@ -4,7 +4,7 @@ local prices = {
     -----------------
   [55581] = {160,"T3"}; --T3 Ring Token
   [55582] = {160,"T3"}; --T3 Ring Token
-  [55581] = {160,"T3"}; --T3 Ring Token
+  [55583] = {160,"T3"}; --T3 Ring Token
   [22349] = {148,"T3"}; --T3 Chest Token
   [22350] = {148,"T3"}; --T3 Chest Token
   [22351] = {148,"T3"}; --T3 Chest Token
