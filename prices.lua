@@ -1,4 +1,113 @@
 local prices = {
+    ----------------------------
+    --- Upper Karazhan Halls ---
+    ----------------------------
+    -- POINTS: 1 = 4.5GP
+    -------------------
+    --- T3.5 TOKENS ---
+    -------------------
+--    [55483] = {115,"T3"}; -- 517 GP T3.5 Boots (Warrior, Priest, Warlock, Druid)
+--    [55484] = {115,"T3"}; -- 517 GP T3.5 Boots (Paladin, Hunter Rogue, Shaman, Mage)
+--    [55485] = {133,"T3"}; -- 598 GP T3.5 Shoulders (Warrior, Priest, Warlock, Druid)
+--    [55486] = {133,"T3"}; -- 598 GP T3.5 Shoulders (Paladin, Hunter Rogue, Shaman, Mage)
+--    [55489] = {182,"T3"}; -- 819 GP T3.5 Leggs (Warrior, Priest, Warlock, Druid)
+--    [55490] = {182,"T3"}; -- 819 GP T3.5 Leggs (Paladin, Hunter Rogue, Shaman, Mage)
+--    [] = {182,"T3"}; -- 819 GP T3.5 Head (Warrior, Priest, Warlock, Druid)
+--    [] = {182,"T3"}; -- 819 GP T3.5 Head (Paladin, Hunter Rogue, Shaman, Mage)
+--    [] = {193,"T3"}; -- 868 GP T3.5 Chest (Warrior, Priest, Warlock, Druid)
+--    [] = {193,"T3"}; -- 868 GP T3.5 Chest (Paladin, Hunter Rogue, Shaman, Mage)
+--    [] = {204,"T3"}; -- 918 GP T3.5 Neck (Warrior, Priest, Warlock, Druid)
+--    [] = {204,"T3"}; -- 912 GP T3.5 Neck (Paladin, Hunter Rogue, Shaman, Mage)
+
+    --- 1 BOSS - Gnarlmoon ---
+--    [55078] = {100,"T3"}; -- 450 GP Ley-attuned Choker
+--    [55084] = {100,"T3"}; -- 450 GP Back - Torn Wings of Midnight
+--    [55081] = {100,"T3"}; -- 450 GP Feet, Cloth - Manadrenched Feather Slippers
+--    [55285] = {100,"T3"}; -- 450 GP Crite's Holy Hands
+--    [55079] = {100,"T3"}; -- 450 GP Ravenkeeper’s Frenzied Embrace
+--    [55080] = {100,"T3"}; -- 450 GP Bloodmoon, Sickle of the Murderous Flight
+--    [55082] = {100,"T3"}; -- 450 GP Idol of Laceration
+--    [55083] = {100,"T3"}; -- 450 GP Crown of the Wildpack
+
+    --- 2 BOSS - Incantagos ---
+--    [41403] = {100,"T3"}; -- 450 GP Quest item - Enchanted Amethyst
+--    [55133] = {100,"T3"}; -- 450 GP Quest Reward - Claw of the Mageweaver
+--    [55134] = {100,"T3"}; -- 450 GP Quest Reward - Rod of Permafrost
+--    [55135] = {100,"T3"}; -- 450 GP Quest Reward - Shard of Leyflow
+
+--    [55086] = {100,"T3"}; -- 450 GP Magehunter Belt
+--    [55099] = {100,"T3"}; -- 450 GP Leysteel Legplates
+--    [55089] = {100,"T3"}; -- 450 GP Bands of the Surgebreaker
+--    [55507] = {100,"T3"}; -- 450 GP Choker of Terminal Arcanum
+--    [55085] = {100,"T3"}; -- 450 GP Magispark Leggings
+--    [55087] = {100,"T3"}; -- 450 GP Jewel of Wild Magics
+--    [55090] = {100,"T3"}; -- 450 GP Scaleshield of Azure Flight
+--    [55091] = {100,"T3"}; -- 450 GP Loop of Infused Renewal
+
+    --- 3 BOSS - Anomalus ---
+--    [55092] = {100,"T3"}; -- 450 GP Manahide Slippers
+--    [55095] = {100,"T3"}; -- 450 GP Cloak of the Bloody Ravager
+--???    [55096] = {100,"T3"}; -- 450 GP Phase-shifting Crossbow
+--    [55279] = {100,"T3"}; -- 450 GP Branch of Resolute Defense
+--    [55106] = {100,"T3"}; -- 450 GP Remains of Overwhelming Power
+--    [55097] = {100,"T3"}; -- 450 GP Bindings of Contained Magic
+--???    [55098] = {100,"T3"}; -- 450 GP Choker of Chromatic Power
+--    [41412] = {100,"T3"}; -- 450 GP Gloves of Nourishment
+
+    --- 4 BOSS - Echo ---
+--    [55094] = {100,"T3"}; -- 450 GP Medivh's Hindsight
+--    [55107] = {100,"T3"}; -- 450 GP Gloves of Leyline Convergence
+--    [55111] = {100,"T3"}; -- 450 GP Eye of Dormant Corruption
+--    [55112] = {100,"T3"}; -- 450 GP Pendant of Forgiven Mistakes
+--    [55108] = {100,"T3"}; -- 450 GP Dreadslayer Shoulderblades
+--    [55109] = {100,"T3"}; -- 450 GP Legwraps of Meticulous Planning
+--    [55110] = {100,"T3"}; -- 450 GP Libram of the Eternal Tower
+--???    [0] = {100,"T3"}; -- 450 GP Forgotten Raven's Mallet
+
+    --- 5 BOSS - King ---
+--    [55088] = {100,"T3"}; -- 450 GP Dragonclaw Gauntlets
+--    [55100] = {100,"T3"}; -- 450 GP Checkmate
+--    [55101] = {100,"T3"}; -- 450 GP King's Edict
+--    [55103] = {100,"T3"}; -- 450 GP Royal Seal of Greymane
+--    [55104] = {100,"T3"}; -- 450 GP Pawn's Advance
+--    [55105] = {100,"T3"}; -- 450 GP Bishop's Reverence
+--???    [55274] = {100,"T3"}; -- 450 GP Chain-Cloak of the Rookguard
+
+    --- 6 BOSS - Sanv Tas'dal ---
+--    [55113] = {100,"T3"}; -- 450 GP Dreadslayer Horns
+--    [55114] = {100,"T3"}; -- 450 GP Totem of Broken Earth
+--    [55115] = {100,"T3"}; -- 450 GP Riftcarver's Implement
+--    [55116] = {100,"T3"}; -- 450 GP Raka'shishi, Spear of the Adrift Hunt
+--    [55117] = {100,"T3"}; -- 450 GP Girdle of the Faded Primals
+--    [55118] = {100,"T3"}; -- 450 GP Kum'isha's Tattered Drape
+--    [55119] = {100,"T3"}; -- 450 GP Forgotten Hide Helm
+
+    --- 7 BOSS - Kruul ---
+--???    [55510] = {100,"T3"}; -- 450 GP Fragments of Aldrach
+--???    [55511] = {100,"T3"}; -- 450 GP Hellflame
+--???    [55506] = {100,"T3"}; -- 450 GP Worldbreaker Girdle
+--???    [55132] = {100,"T3"}; -- 450 GP Pendant of Purified Demon's Blood
+--???    [55131] = {100,"T3"}; -- 450 GP Shieldrender Talisman
+--    [55127] = {100,"T3"}; -- 450 GP Shar'tateth, the Shattered Edge
+--    [55128] = {100,"T3"}; -- 450 GP Comet Signaller
+--    [55129] = {100,"T3"}; -- 450 GP Desecration
+--    [55130] = {100,"T3"}; -- 450 GP Wristwraps of Exiled Radiance
+
+    --- 8 BOSS - Unknown ---
+--    [55120] = {100,"T3"}; -- 450 GP Al'Kazeth, Claw of Ruptured Elements
+--    [55121] = {100,"T3"}; -- 450 GP Bulwark of Enduring Earth
+--    [55122] = {100,"T3"}; -- 450 GP Earthquake Leggings
+--    [55123] = {100,"T3"}; -- 450 GP Loop of Hardened Slate
+--    [55124] = {100,"T3"}; -- 450 GP Pure Jewel of Draenor
+--    [55126] = {100,"T3"}; -- 450 GP Handwraps of Dead Winds
+--    [55126] = {100,"T3"}; -- 450 GP Mantle of the Drifting Stars
+--    [55133] = {100,"T3"}; -- 450 GP Claw of the Mageweaver
+--    [55113] = {100,"T3"}; -- 450 GP Dreadslayer Horns
+
+    --- 9 BOSS - ?????? ---
+
+    --- TRASH ---
+
     -----------------
     --- Naxxramas ---
     -----------------
