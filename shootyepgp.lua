@@ -1130,15 +1130,6 @@ end
 ---------------------
 -- EPGP Operations
 ---------------------
-function sepgp:init_notes_v2(guild_index,note,officernote)
-  if not tonumber(note) or (tonumber(note) < 0) then
-    GuildRosterSetPublicNote(guild_index,0)
-  end
-  if not tonumber(officernote) or (tonumber(officernote) < sepgp.VARS.basegp) then
-    GuildRosterSetOfficerNote(guild_index,sepgp.VARS.basegp,true)
-  end
-end
-
 function sepgp:init_notes_v3(guild_index,name,officernote)
   local ep,gp = self:get_ep_v3(name,officernote), self:get_gp_v3(name,officernote)
   if not (ep and gp) then
@@ -1179,16 +1170,6 @@ function sepgp:update_epgp_v3(ep,gp,guild_index,name,officernote,special_action)
   end
 end
 
-function sepgp:update_ep_v2(getname,ep)
-  for i = 1, GetNumGuildMembers(1) do
-    local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
-    if (name==getname) then 
-      self:init_notes_v2(i,note,officernote)
-      GuildRosterSetPublicNote(i,ep)
-    end
-  end
-end
-
 function sepgp:update_ep_v3(getname,ep)
   for i = 1, GetNumGuildMembers(1) do
     local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
@@ -1196,16 +1177,6 @@ function sepgp:update_ep_v3(getname,ep)
       self:update_epgp_v3(ep,nil,i,name,officernote)
     end
   end  
-end
-
-function sepgp:update_gp_v2(getname,gp)
-  for i = 1, GetNumGuildMembers(1) do
-    local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
-    if (name==getname) then 
-      self:init_notes_v2(i,note,officernote)
-      GuildRosterSetOfficerNote(i,gp,true) 
-    end
-  end
 end
 
 function sepgp:update_gp_v3(getname,gp)
@@ -1345,32 +1316,6 @@ function sepgp:givename_gp(getname,gp) -- assigns gp to a single character
   self:addonMessage(addonMsg,"GUILD")  
 end
 
-function sepgp:decay_epgp_v2() -- decays entire roster's ep and gp
-  if not (admin()) then return end
-  for i = 1, GetNumGuildMembers(1) do
-    local name,_,_,_,class,_,ep,gp,_,_ = GetGuildRosterInfo(i)
-    ep = tonumber(ep)
-    gp = tonumber(gp)
-    if ep == nil then 
-    else 
-      if gp == nil then
-        local msg = string.format(L["%s\'s officernote is broken:%q"],name,tostring(gp))
-        self:debugPrint(msg)
-        self:adminSay(msg)
-      else
-        ep = math.max(0,self:num_round(ep*sepgp_decay))
-    	  GuildRosterSetPublicNote(i,ep)
-    	  gp = math.max(sepgp.VARS.basegp,self:num_round(gp*sepgp_decay))
-    	  GuildRosterSetOfficerNote(i,gp,true)
-      end
-    end
-  end
-  local msg = string.format(L["All EP and GP decayed by %d%%"],(1-sepgp_decay)*100)
-  self:simpleSay(msg)
-  if not (sepgp_saychannel=="OFFICER") then self:adminSay(msg) end
-  self:addToLog(msg)
-end
-
 function sepgp:decay_epgp_v3()
   if not (admin()) then return end
   for i = 1, GetNumGuildMembers(1) do
@@ -1389,17 +1334,6 @@ function sepgp:decay_epgp_v3()
   self:addonMessage(addonMsg,"GUILD")
   self:addToLog(msg)
   self:refreshPRTablets() 
-end
-
-function sepgp:gp_reset_v2()
-  if (IsGuildLeader()) then
-    for i = 1, GetNumGuildMembers(1) do
-      GuildRosterSetOfficerNote(i, sepgp.VARS.basegp,true)
-    end
-    self:debugPrint(string.format(L["All GP has been reset to %d."],sepgp.VARS.basegp))
-    self:adminSay(string.format(L["All GP has been reset to %d."],sepgp.VARS.basegp))
-    self:addToLog(string.format(L["All GP has been reset to %d."],sepgp.VARS.basegp))
-  end
 end
 
 function sepgp:gp_reset_v3()
