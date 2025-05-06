@@ -1,18 +1,23 @@
 sepgp.rank_prio = {
 	{'Guild Master(MS)', 'Officer(MS)', 'Veteran(MS)', 'Core Raider(MS)'},
 	{'Guild Master(OS)', 'Officer(OS)', 'Veteran(OS)', 'Core Raider(OS)'},
-	{'Raider(MS)'},
-	{'Raider(OS)'},
-	{'Cossack(MS)', 'Newcommer(MS)', 'Alt(MS)', 'Muted(MS)'},
-	{'Cossack(OS)', 'Newcommer(OS)', 'Alt(OS)', 'Muted(OS)'},
+	{'Raider(MS)', 'Alt(MS)>5000', 'Cossack(MS)>100'},
+	{'Raider(OS)', 'Alt(OS)>5000', 'Cossack(OS)>100'},
+	{'Cossack(MS)', 'Newcomer(MS)', 'Alt(MS)', 'Muted(MS)'},
+	{'Cossack(OS)', 'Newcomer(OS)', 'Alt(OS)', 'Muted(OS)'},
 }
 
-function sepgp:rankPrio_index(rank, spec)
+function sepgp:rankPrio_index(rank, spec, ep)
 	rank_spec = rank..'('..spec..')'
 	for i, v in ipairs(sepgp.rank_prio) do
 		for j, r in ipairs(v) do
 			if r == rank_spec then
 				return i
+			else
+				found,_,rr,barrier_ep = string.find(r, "(.*)>(%d+)")
+				if found and rr == rank_spec and ep > tonumber(barrier_ep) then
+					return i
+				end
 			end
 		end
 	end

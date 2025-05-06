@@ -391,7 +391,7 @@ function sepgp_standings:BuildStandingsTable()
     end
     local armor_class = self:getArmorClass(class)
 		rank = sepgp:parseRank(name,officernote) or rank
-		local rank_idx = sepgp:rankPrio_index(rank, 'MS') or 1000
+		local rank_idx = sepgp:rankPrio_index(rank, 'MS', ep) or 1000
 		if ep>0 and ((not sepgp_raidonly) or next(r) and r[name]) then
 			table.insert(t,{name,class,armor_class,rank,ep,gp,ep/gp,rank_idx})
 		end

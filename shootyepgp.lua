@@ -1757,10 +1757,10 @@ function sepgp:captureBid(text, sender)
           local name, rank, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
           if name == sender then
 						rank = self:parseRank(name,officernote) or rank
-						spec = mskw_found and 'MS' or 'OS'
-						rank_idx = sepgp:rankPrio_index(rank, spec) or 1000
+						local spec = mskw_found and 'MS' or 'OS'
             local ep = (self:get_ep_v3(name,officernote) or 0) 
             local gp = (self:get_gp_v3(name,officernote) or sepgp.VARS.basegp)
+						local rank_idx = sepgp:rankPrio_index(rank, spec, ep) or 1000
             local main_name
             if (sepgp_altspool) then
               local main, main_class, main_rank, main_offnote = self:parseAlt(name,officernote)
