@@ -1,9 +1,9 @@
 sepgp.rank_prio = {
 	{'Guild Master(MS)', 'Officer(MS)', 'Veteran(MS)', 'Core Raider(MS)'},
-	{'Raider(MS)'},
 	{'Guild Master(OS)', 'Officer(OS)', 'Veteran(OS)', 'Core Raider(OS)'},
-	{'Cossack(MS)', 'Newcommer(MS)', 'Alt(MS)', 'Muted(MS)'},
+	{'Raider(MS)'},
 	{'Raider(OS)'},
+	{'Cossack(MS)', 'Newcommer(MS)', 'Alt(MS)', 'Muted(MS)'},
 	{'Cossack(OS)', 'Newcommer(OS)', 'Alt(OS)', 'Muted(OS)'},
 }
 
