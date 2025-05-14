@@ -2213,23 +2213,6 @@ sanitizeNote = function(prefix,epgp,postfix)
   return string.format("%s%s",prepend,epgp)
 end
 
-function sepgp:PrintTable(tbl, indent)
-    indent = indent or 0
-    local indentStr = string.rep("  ", indent)
-
-    for k, v in pairs(tbl) do
-        local keyStr = "[" .. tostring(k) .. "]"
-        if type(v) == "table" then
-            DEFAULT_CHAT_FRAME:AddMessage(indentStr .. keyStr .. " = {")
-            PrintTable(v, indent + 1)
-            DEFAULT_CHAT_FRAME:AddMessage(indentStr .. "}")
-        else
-            local valueStr = tostring(v)
-            DEFAULT_CHAT_FRAME:AddMessage(indentStr .. keyStr .. " = " .. valueStr)
-        end
-    end
-end
-
 function sepgp:DeleteEntryByName(arr, targetName)
     local i = 1
     while arr[i] do
