@@ -27,6 +27,7 @@ sepgp.VARS = {
   osgp = "Offspec GP",
   bankde = "Bank-D/E",
   reminder = C:Red("Unassigned"),
+  instanceEpReminder = nil,
 }
 sepgp.VARS.reservecall = string.format(L["{shootyepgp}Type \"+\" if on main, or \"+<YourMainName>\" (without quotes) if on alt within %dsec."],sepgp.VARS.timeout)
 sepgp._playerName = (UnitName("player"))
@@ -508,6 +509,9 @@ function sepgp:OnEnable() -- PLAYER_LOGIN (2)
         end
       end)
   end
+  self:RegisterEvent("LOOT_OPENED", function()
+      sepgp:ShowAwardEpReminderIfNeeded(mobName)
+    end)
   self:RegisterEvent("CHAT_MSG_RAID","captureLootCall")
   self:RegisterEvent("CHAT_MSG_RAID_LEADER","captureLootCall")
   self:RegisterEvent("CHAT_MSG_RAID_WARNING","captureLootCall")
@@ -1439,6 +1443,43 @@ function sepgp:SetRefresh(flag)
   end
 end
 
+function sepgp:ShowAwardEpReminderIfNeeded(mobName)
+  local inInstance, instanceType = IsInInstance()
+  if (inInstance) and (instanceType == "raid") then
+    local zoneLoc = GetRealZoneText()
+    if not sepgp.VARS.instanceEpReminder then
+      sepgp.VARS.instanceEpReminder = { zoneLoc, sepgp.boss_list[zoneLoc] }
+    end
+
+    if sepgp.VARS.instanceEpReminder then 
+      local bossName = UnitName("target")
+
+      if not bossName then
+        return
+      end
+      local epCost = sepgp:GetBossEpValue(sepgp.VARS.instanceEpReminder[2], bossName)
+      if epCost then
+        local dialog = StaticPopup_Show("SHOOTY_EP_BOSS_AWARD_REMINDER", epCost[2], epCost[1], epCost)
+        if (dialog) then
+          dialog.data = epCost
+        end
+      end
+    end
+  end
+end
+
+function sepgp:GetBossEpValue(bosses, bossName)
+    local i = 1
+    while bosses[i] do
+        if bosses[i][1] == bossName then
+            return bosses[i]
+        end
+        i = i + 1
+    end
+
+    return nil  -- Boss not found
+end
+
 function sepgp:buildRosterTable()
   local g, r = { }, { }
   local numGuildMembers = GetNumGuildMembers(1)
@@ -2172,9 +2213,51 @@ sanitizeNote = function(prefix,epgp,postfix)
   return string.format("%s%s",prepend,epgp)
 end
 
+function sepgp:PrintTable(tbl, indent)
+    indent = indent or 0
+    local indentStr = string.rep("  ", indent)
+
+    for k, v in pairs(tbl) do
+        local keyStr = "[" .. tostring(k) .. "]"
+        if type(v) == "table" then
+            DEFAULT_CHAT_FRAME:AddMessage(indentStr .. keyStr .. " = {")
+            PrintTable(v, indent + 1)
+            DEFAULT_CHAT_FRAME:AddMessage(indentStr .. "}")
+        else
+            local valueStr = tostring(v)
+            DEFAULT_CHAT_FRAME:AddMessage(indentStr .. keyStr .. " = " .. valueStr)
+        end
+    end
+end
+
+function sepgp:DeleteEntryByName(arr, targetName)
+    local i = 1
+    while arr[i] do
+        if arr[i][1] == targetName then
+            table.remove(arr, i)
+            return true  -- Found and removed
+        end
+        i = i + 1
+    end
+    return false  -- Not found
+end
+
 -------------
 -- Dialogs
 -------------
+StaticPopupDialogs["SHOOTY_EP_BOSS_AWARD_REMINDER"] = {
+  text = "Award raid with %d EP for killing %s?",
+  button1 = TEXT(YES),
+  button2 = TEXT(NO),
+  OnAccept = function(data)
+    sepgp:award_raid_ep(data[2])
+    sepgp:DeleteEntryByName(sepgp.VARS.instanceEpReminder[2], data[1])
+  end,
+  timeout = 0,
+  whileDead = 1,
+  exclusive = 0,
+  hideOnEscape = 1
+}
 StaticPopupDialogs["SHOOTY_EPGP_CLEAR_LOOT"] = {
   text = L["There are %d loot drops stored. It is recommended to clear loot info before a new raid. Do you want to clear it now?"],
   button1 = TEXT(YES),
