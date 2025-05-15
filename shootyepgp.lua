@@ -27,6 +27,7 @@ sepgp.VARS = {
   osgp = "Offspec GP",
   bankde = "Bank-D/E",
   reminder = C:Red("Unassigned"),
+  instanceEpReminder = nil,
 }
 sepgp.VARS.reservecall = string.format(L["{shootyepgp}Type \"+\" if on main, or \"+<YourMainName>\" (without quotes) if on alt within %dsec."],sepgp.VARS.timeout)
 sepgp._playerName = (UnitName("player"))
@@ -508,6 +509,11 @@ function sepgp:OnEnable() -- PLAYER_LOGIN (2)
         end
       end)
   end
+  self:RegisterEvent("LOOT_OPENED", function()
+      if sepgp:lootMaster() then
+        sepgp:ShowAwardEpReminderIfNeeded()
+      end
+    end)
   self:RegisterEvent("CHAT_MSG_RAID","captureLootCall")
   self:RegisterEvent("CHAT_MSG_RAID_LEADER","captureLootCall")
   self:RegisterEvent("CHAT_MSG_RAID_WARNING","captureLootCall")
@@ -1439,6 +1445,92 @@ function sepgp:SetRefresh(flag)
   end
 end
 
+function sepgp:ShowAwardEpReminderIfNeeded()
+  local inInstance, instanceType = IsInInstance()
+  if (inInstance) and (instanceType == "raid") then
+    local zoneLoc = GetRealZoneText()
+    if not sepgp.VARS.instanceEpReminder or sepgp.VARS.instanceEpReminder[1] ~= zoneLoc then
+      sepgp.VARS.instanceEpReminder = { zoneLoc, sepgp.boss_list[zoneLoc] }
+    end
+
+    if sepgp.VARS.instanceEpReminder then 
+      local target = UnitName("target")
+      local epCost = sepgp:GetBossEpValueByTarget(sepgp.VARS.instanceEpReminder[2], target)
+
+      if not epCost then
+        epCost = sepgp:GetBossEpValueByLoot(sepgp.VARS.instanceEpReminder[2], sepgp:GetLootItemNames())
+      end
+
+      if epCost and epCost[2] > 0 then
+          local dialog = StaticPopup_Show("SHOOTY_EP_BOSS_AWARD_REMINDER", epCost[2], epCost[1], epCost)
+          if (dialog) then
+            dialog.data = epCost
+          end
+      end
+    end
+  end
+end
+
+function sepgp:GetLootItemNames()
+    local lootNames = {}
+    local numItems = GetNumLootItems()
+
+    for i = 1, numItems do
+        local _, itemName = GetLootSlotInfo(i)
+        if itemName then
+            table.insert(lootNames, itemName)
+        end
+    end
+
+    return lootNames
+end
+
+function sepgp:GetBossEpValueByLoot(bosses, lootNames)
+    local i = 1
+    while bosses[i] do
+        if bosses[i][3] ~= nil and sepgp:ArraysIntersect(bosses[i][3], lootNames) then
+            return bosses[i]
+        end
+        i = i + 1
+    end
+
+    return nil  -- Boss not found
+end
+
+function sepgp:ArraysIntersect(array1, array2)
+    local set = {}
+
+    -- Build lookup table from first array
+    for i, value in ipairs(array1) do
+        set[value] = true
+    end
+
+    -- Check if any item in second array exists in the set
+    for i, value in ipairs(array2) do
+        if set[value] then
+            return true  -- Intersection found
+        end
+    end
+
+    return false  -- No intersection
+end
+
+function sepgp:GetBossEpValueByTarget(bosses, target)
+    if not target then
+      return nil
+    end
+
+    local i = 1
+    while bosses[i] do
+        if bosses[i][1] == target then
+            return bosses[i]
+        end
+        i = i + 1
+    end
+
+    return nil  -- Boss not found
+end
+
 function sepgp:buildRosterTable()
   local g, r = { }, { }
   local numGuildMembers = GetNumGuildMembers(1)
@@ -2172,9 +2264,34 @@ sanitizeNote = function(prefix,epgp,postfix)
   return string.format("%s%s",prepend,epgp)
 end
 
+function sepgp:DeleteEntryByName(arr, targetName)
+    local i = 1
+    while arr[i] do
+        if arr[i][1] == targetName then
+            table.remove(arr, i)
+            return true  -- Found and removed
+        end
+        i = i + 1
+    end
+    return false  -- Not found
+end
+
 -------------
 -- Dialogs
 -------------
+StaticPopupDialogs["SHOOTY_EP_BOSS_AWARD_REMINDER"] = {
+  text = "Award raid with %d EP for killing %s?",
+  button1 = TEXT(YES),
+  button2 = TEXT(NO),
+  OnAccept = function(data)
+    sepgp:award_raid_ep(data[2])
+    sepgp:DeleteEntryByName(sepgp.VARS.instanceEpReminder[2], data[1])
+  end,
+  timeout = 0,
+  whileDead = 1,
+  exclusive = 0,
+  hideOnEscape = 1
+}
 StaticPopupDialogs["SHOOTY_EPGP_CLEAR_LOOT"] = {
   text = L["There are %d loot drops stored. It is recommended to clear loot info before a new raid. Do you want to clear it now?"],
   button1 = TEXT(YES),
