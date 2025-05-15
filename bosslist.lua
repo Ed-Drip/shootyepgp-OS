@@ -1,8 +1,9 @@
 local zones = {
-  [ "Durotar" ] = {
+  ["Durotar"] = {
     {"Elder Mottled Boar", 0}
   },
-  [ "Tower of Karazhan" ] = {
+
+  ["Tower of Karazhan"] = {
     {"Master Blacksmith Rolfen", 0},
     {"Brood Queen Araxxna", 0},
     {"Grizikil", 0},
@@ -10,7 +11,8 @@ local zones = {
     {"Lord Blackwald II", 0},
     {"Moroes", 0}
   },
-  [ "Zul'Gurub" ] = {
+
+  ["Zul'Gurub"] = {
     {"High Priestess Jeklik", 0},
     {"High Priest Venoxis", 0},
     {"Witherbark Speaker", 0},
@@ -30,7 +32,8 @@ local zones = {
     {"Jin'do the Hexxer", 0},
     {"Hakkar", 0}
   },
-  [ "Ruins of Ahn'Qiraj" ] = {
+
+  ["Ruins of Ahn'Qiraj"] = {
     {"Kurinnaxx", 0},
     {"General Rajaxx", 0},
     {"Moam", 0},
@@ -38,7 +41,8 @@ local zones = {
     {"Ayamiss the Hunter", 0},
     {"Ossirian the Unscarred", 0}
   },
-  [ "Molten Core" ] = {
+
+  ["Molten Core"] = {
     {"Lucifron", 40},
     {"Magmadar", 40},
     {"Gehennas", 40},
@@ -47,9 +51,24 @@ local zones = {
     {"Baron Geddon", 40},
     {"Golemagg the Incinerator", 40},
     {"Sulfuron Harbinger", 40},
+    {"Majordomo Executus", 40, {
+      "The Eye of Divinity",
+      "Ancient Petrified Leaf",
+      "Core Forged Greaves",
+      "Sash of Whispered Secrets",
+      "Wild Growth Spaulders",
+      "Wristguards of True Flight",
+      "Cauterizing Band",
+      "Finkle's Lava Dredger",
+      "Core Hound Tooth",
+      "Gloves of the Hypnotic Flame",
+      "Fireproof Cloak",
+      "Fireguard Shoulders"
+    }},
     {"Ragnaros", 100}
   },
-  [ "Blackwing Lair" ] = {
+
+  ["Blackwing Lair"] = {
     {"Razorgore the Untamed", 60},
     {"Vaelastrasz the Corrupt", 60},
     {"Broodlord Lashlayer", 60},
@@ -59,10 +78,12 @@ local zones = {
     {"Chromaggus", 60},
     {"Nefarian", 200}
   },
-  [ "Onyxia's Lair" ] = {
+
+  ["Onyxia's Lair"] = {
     {"Onyxia", 100}
   },
-  [ "Temple of Ahn'Qiraj" ] = {
+
+  ["Temple of Ahn'Qiraj"] = {
     {"The Prophet Skeram", 80},
     {"Vem", 80},
     {"Lord Kri", 80},
@@ -76,7 +97,8 @@ local zones = {
     {"Ouro", 160},
     {"C'Thun", 300}
   },
-  [ "Naxxramas" ] = {
+
+  ["Naxxramas"] = {
     {"Patchwerk", 160},
     {"Grobbulus", 160},
     {"Gluth", 160},
@@ -89,6 +111,11 @@ local zones = {
     {"Loatheb", 160},
     {"Instructor Razuvious", 160},
     {"Gothik the Harvester", 160},
+    {"Four Horseman", 320, {
+      "Desecrated Breastplate",
+      "Desecrated Tunic",
+      "Desecrated Robe"
+    }},
     {"Sapphiron", 320},
     {"Kel'Thuzad", 640}
   }
