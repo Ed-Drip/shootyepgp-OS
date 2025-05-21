@@ -83,7 +83,7 @@ local zones = {
     {"Onyxia", 100}
   },
 
-  ["Temple of Ahn'Qiraj"] = {
+  ["Ahn'Qiraj"] = {
     {"The Prophet Skeram", 80},
     {"Vem", 80},
     {"Lord Kri", 80},
@@ -116,7 +116,13 @@ local zones = {
       "Desecrated Tunic",
       "Desecrated Robe"
     }},
+  },
+
+  ["Sapphiron's Lair"] = {
     {"Sapphiron", 320},
+  },
+  
+  ["Kel'Thuzad Chamber"] = {
     {"Kel'Thuzad", 640}
   }
 }
