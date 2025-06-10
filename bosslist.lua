@@ -88,7 +88,7 @@ local zones = {
     {"Vem", 80},
     {"Lord Kri", 80},
     {"Princess Yauj", 80},
-    {"Battle Guard Sartura", 80},
+    {"Battleguard Sartura", 80},
     {"Fankriss the Unyielding", 80},
     {"Viscidus", 80},
     {"Princess Huhuran", 80},
