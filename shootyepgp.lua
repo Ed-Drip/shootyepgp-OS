@@ -1039,6 +1039,7 @@ function sepgp:addonComms(prefix,message,channel,sender)
         self._newVersionNotification = true -- only inform once per session
         self:defaultPrint(string.format(L["New %s version available: |cff00ff00%s|r"],version_type,what))
         self:defaultPrint(string.format(L["Visit %s to update."],self._websiteString))
+        self:defaultPrint(string.format("Sent by  %s",sender))
       end
       if (IsGuildLeader()) then
         self:shareSettings()
@@ -1136,6 +1137,19 @@ end
 ---------------------
 -- EPGP Operations
 ---------------------
+function sepgp:parse_epgp_v3(officernote)
+	local _,_,ep,gp = string.find(officernote,".*{(%d+):(%d+)}.*")
+	ep = ep and tonumber(ep) or 0
+	gp = gp and tonumber(gp) or sepgp.VARS.basegp
+	return ep,gp
+end
+
+function sepgp:format_epgp_v3(ep,gp)
+	ep = ep and tonumber(ep) or 0
+	gp = gp and tonumber(gp) or sepgp.VARS.basegp
+	return string.format("{%d:%d}",ep,gp)
+end
+
 function sepgp:init_notes_v3(guild_index,name,officernote)
   local ep,gp = self:get_ep_v3(name,officernote), self:get_gp_v3(name,officernote)
   if not (ep and gp) then
@@ -1177,21 +1191,15 @@ function sepgp:update_epgp_v3(ep,gp,guild_index,name,officernote,special_action)
 end
 
 function sepgp:update_ep_v3(getname,ep)
-  for i = 1, GetNumGuildMembers(1) do
-    local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
-    if (name==getname) then 
-      self:update_epgp_v3(ep,nil,i,name,officernote)
-    end
-  end  
+	local m = sepgp:findGuildMember(getname)
+	if not m then return end
+	self:update_epgp_v3(ep,nil,m.guildIndex,m.name,m.officernote)
 end
 
 function sepgp:update_gp_v3(getname,gp)
-  for i = 1, GetNumGuildMembers(1) do
-    local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
-    if (name==getname) then 
-      self:update_epgp_v3(nil,gp,i,name,officernote) 
-    end
-  end  
+	local m = sepgp:findGuildMember(getname)
+	if not m then return end
+	self:update_epgp_v3(nil,gp,m.guildIndex,m.name,m.officernote)
 end
 
 function sepgp:get_ep_v2(getname,note) -- gets ep by name or note
@@ -1208,15 +1216,12 @@ end
 
 function sepgp:get_ep_v3(getname,officernote) -- gets ep by name or note
   if (officernote) then
-    local _,_,ep = string.find(officernote,".*{(%d+):%d+}.*")
-    return tonumber(ep)
+		local ep,gp = self:parse_epgp_v3(officernote)
+    return ep
   end
-  for i = 1, GetNumGuildMembers(1) do
-    local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
-    local _,_,ep = string.find(officernote,".*{(%d+):%d+}.*")
-    if (name==getname) then return tonumber(ep) end
-  end
-  return
+	local m = sepgp:findGuildMember(getname)
+	if not m then return end
+	return m.ep
 end
 
 function sepgp:get_gp_v2(getname,officernote) -- gets gp by name or officernote
@@ -1233,15 +1238,12 @@ end
 
 function sepgp:get_gp_v3(getname,officernote) -- gets gp by name or officernote
   if (officernote) then
-    local _,_,gp = string.find(officernote,".*{%d+:(%d+)}.*")
-    return tonumber(gp)
+		local ep,gp = self:parse_epgp_v3(officernote)
+    return gp
   end
-  for i = 1, GetNumGuildMembers(1) do
-    local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
-    local _,_,gp = string.find(officernote,".*{%d+:(%d+)}.*")
-    if (name==getname) then return tonumber(gp) end
-  end
-  return
+	local m = sepgp:findGuildMember(getname)
+	if not m then return end
+	return m.gp
 end
 
 function sepgp:award_raid_ep(ep) -- awards ep to raid members in zone
@@ -1611,28 +1613,17 @@ end
 -- Alts
 ---------------
 function sepgp:parseAlt(name,officernote)
-  if (officernote) then
-    local _,_,_,main,_ = string.find(officernote or "","(.*){(%a%a%a+)}(.*)")
-    if type(main)=="string" and (string.len(main) < 13) then
-      main = self:camelCase(main)
-      local g_name, g_class, g_rank, g_officernote = self:verifyGuildMember(main)
-      if (g_name) then
-        return g_name, g_class, g_rank, g_officernote
-      else
-        return nil
-      end
-    else
-      return nil
-    end
-  else
-    for i=1,GetNumGuildMembers(1) do
-      local g_name, _, _, _, g_class, _, g_note, g_officernote, _, _ = GetGuildRosterInfo(i)
-      if (name == g_name) then
-        return self:parseAlt(g_name, g_officernote)
-      end
-    end
-  end
-  return nil
+	local m = sepgp:findGuildMember(name)
+	if not m then return nil end
+
+	local _,_,_,main,_ = string.find(m.officernote or "","(.*){(%a%a%a+)}(.*)")
+	if type(main)=="string" and (string.len(main) < 13) then
+		main = sepgp:findGuildMember(main)
+		if main then
+			return main.name, main.class, main.rank, main.officernote
+		end
+	end
+	return nil
 end
 
 
@@ -1831,6 +1822,10 @@ function sepgp:captureBid(text, sender)
   if not (running_bid) then return end
   if not (IsRaidLeader() or self:lootMaster()) then return end
   if not sepgp.bid_item.link then return end
+
+	local m = self:findGuildMember(sender)
+	if not m then return end
+	
   local mskw_found,oskw_found
   local lowtext = string.lower(text)
   for _,f in ipairs(lootBid.ms) do
@@ -1841,35 +1836,24 @@ function sepgp:captureBid(text, sender)
     oskw_found = string.find(text,f)
     if (oskw_found) then break end
   end
-  if (mskw_found) or (oskw_found) then
-    if self:inRaid(sender) then
-      if bids_blacklist[sender] == nil then
-        for i = 1, GetNumGuildMembers(1) do
-          -- local name, rank_name, rank_idx, lvl, class, location, note, officernote, online, _ = GetGuildRosterInfo(i)
-          local name, rank, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
-          if name == sender then
-						rank = self:parseRank(name,officernote) or rank
-						local spec = mskw_found and 'MS' or 'OS'
-            local ep = (self:get_ep_v3(name,officernote) or 0) 
-            local gp = (self:get_gp_v3(name,officernote) or sepgp.VARS.basegp)
-						local rank_idx = sepgp:rankPrio_index(rank, spec, ep) or 1000
-            local main_name
-            if (sepgp_altspool) then
-              local main, main_class, main_rank, main_offnote = self:parseAlt(name,officernote)
-              if (main) then
-                ep = (self:get_ep_v3(main,main_offnote) or 0)
-                gp = (self:get_gp_v3(main,main_offnote) or sepgp.VARS.basegp)
-                main_name = main
-              end
-            end
-						bids_blacklist[sender] = true
-						table.insert(sepgp.bids,{name,class,rank,spec,rank_idx,ep,(ep/gp),main_name})
-            sepgp_bids:Toggle(true)
-            return
-          end
-        end
-      end
-    end
+  if (mskw_found) or (oskw_found) and
+    self:inRaid(sender) and bids_blacklist[sender] == nil then
+			local spec = mskw_found and 'MS' or 'OS'
+			local rank = self:parseRank(m.name,m.officernote) or m.rank
+			local rank_idx = sepgp:rankPrio_index(rank, spec, m.ep) or 1000
+			local main_name
+			if (sepgp_altspool) then
+				local main, main_class, main_rank, main_offnote = self:parseAlt(name,officernote)
+				if (main) then
+					local ep, gp = self:parse_epgp_v3(main_offnote)
+					m.ep = ep
+					m.gp = gp
+					main_name = main
+				end
+			end
+			bids_blacklist[sender] = true
+			table.insert(sepgp.bids,{m.name,m.class,rank,spec,rank_idx,m.ep,(m.ep/m.gp),main_name})
+			sepgp_bids:Toggle(true)
   end
 end
 
@@ -2113,14 +2097,31 @@ function sepgp:processLoot(player,itemLink,source)
   end
 end
 
+function sepgp:findGuildMember(name)
+	for i=1,GetNumGuildMembers(1) do
+		local g_name, g_rank, g_rankIndex, g_level, g_class, g_zone, g_note, g_officernote, g_online = GetGuildRosterInfo(i)
+		if (string.lower(name) == string.lower(g_name)) then
+			local ep, gp = self:parse_epgp_v3(g_officernote)
+			return { 
+				name = g_name, rank = g_rank, 
+				rankIndex = tonumber(g_rankIndex), 
+				level = tonumber(g_level), 
+				class = g_class, zone = g_zone, note = g_note, 
+				officernote = g_officernote, ep = ep, gp = gp,
+				online = g_online,
+				guildIndex = i
+			}
+		end
+	end
+	return nil
+end
+
 function sepgp:verifyGuildMember(name,silent)
-  for i=1,GetNumGuildMembers(1) do
-    local g_name, g_rank, g_rankIndex, g_level, g_class, g_zone, g_note, g_officernote, g_online = GetGuildRosterInfo(i)
-    if (string.lower(name) == string.lower(g_name)) and (tonumber(g_level) >= sepgp.VARS.minlevel) then 
-    -- == MAX_PLAYER_LEVEL]]
-      return g_name, g_class, g_rank, g_officernote
-    end
-  end
+	local m = self:findGuildMember(name)
+	if m  and (m.level >= sepgp.VARS.minlevel) then
+		return m.name, m.class, m.rank, m.officernote
+	end
+
   if (name) and name ~= "" and not (silent) then
     self:defaultPrint(string.format(L["%s not found in the guild or not max level!"],name))
   end
@@ -2246,12 +2247,6 @@ function sepgp:parseVersion(version,otherVersion)
   end
 end
 
-function sepgp:camelCase(word)
-  return string.gsub(word,"(%a)([%w_']*)",function(head,tail) 
-    return string.format("%s%s",string.upper(head),string.lower(tail)) 
-    end)
-end
-
 admin = function()
   return (CanEditOfficerNote() --[[and CanEditPublicNote()]])
 end
@@ -2319,8 +2314,7 @@ StaticPopupDialogs["SHOOTY_EPGP_SET_MAIN"] = {
   maxLetters = 12,
   OnAccept = function()
     local editBox = getglobal(this:GetParent():GetName().."EditBox")
-    local name = sepgp:camelCase(editBox:GetText())
-    sepgp_main = sepgp:verifyGuildMember(name)
+    sepgp_main = sepgp:verifyGuildMember(editBox:GetText())
   end,
   OnShow = function()
     getglobal(this:GetName().."EditBox"):SetText(sepgp_main or "")

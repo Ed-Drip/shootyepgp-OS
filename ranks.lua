@@ -8,7 +8,7 @@ sepgp.rank_prio = {
 }
 
 function sepgp:rankPrio_index(rank, spec, ep)
-	rank_spec = rank..'('..spec..')'
+	local rank_spec = rank..'('..spec..')'
 	for i, v in ipairs(sepgp.rank_prio) do
 		for j, r in ipairs(v) do
 			if r == rank_spec then
@@ -27,27 +27,28 @@ end
 
 function sepgp:overrideRank(name, rank)
 	if (name) then
-		for i = 1, GetNumGuildMembers(1) do
-			local member_name,g_rank,_,_,_,_,_,officernote,_,_ = GetGuildRosterInfo(i)
-			if (member_name == name) then
-				local _,_,prefix,old_rank,suffix = string.find(officernote or "","(.*)%[(.+)%](.*)")
-				if (not prefix) then
-					prefix = ""
-					suffix = officernote
-				end
-
-				if (not rank or rank == '') then
-					GuildRosterSetOfficerNote(i,string.format("%s%s",prefix,suffix),true)
-					rank = g_rank
-				else
-					GuildRosterSetOfficerNote(i,string.format("%s[%s]%s",prefix,rank,suffix),true)
-				end
-
-				self:defaultPrint(string.format("%s rank is now recognised as %s.",name,rank))
-				self:refreshPRTablets()
-				return
-			end
+		local m = sepgp:findGuildMember(name)
+		if (not m) then 
+			self:defaultPrint(string.format("can't find guild member %s",name))
+			return
 		end
+
+		local _,_,prefix,old_rank,suffix = string.find(m.officernote or "","(.*)%[(.+)%](.*)")
+		if (not prefix) then
+			prefix = ""
+			suffix = m.officernote
+		end
+
+		if (not rank or rank == '') then
+			GuildRosterSetOfficerNote(m.guildIndex,string.format("%s%s",prefix,suffix),true)
+			rank = m.rank
+		else
+			GuildRosterSetOfficerNote(m.guildIndex,string.format("%s[%s]%s",prefix,rank,suffix),true)
+		end
+
+		self:defaultPrint(string.format("%s rank is now recognized as %s.",name,rank))
+		self:refreshPRTablets()
+
 	end
 end
 
@@ -58,12 +59,8 @@ function sepgp:parseRank(name,officernote)
 			return rank
     end
   else
-    for i=1,GetNumGuildMembers(1) do
-      local g_name, _, _, _, g_class, _, g_note, g_officernote, _, _ = GetGuildRosterInfo(i)
-      if (name == g_name) then
-        return self:parseRank(g_name, g_officernote)
-      end
-    end
+		local m = sepgp:findGuildMember(name)
+		if (m) then return sepgp:parseRank(name, m.officernote) end
   end
   return nil
 end
