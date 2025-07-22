@@ -26,6 +26,11 @@ function sepgp:rankPrio_index(rank, spec, ep)
 end
 
 function sepgp:overrideRank(name, rank)
+	if (rank and string.find(rank, "(%d+)")) then
+		self:defaultPrint("rank can't have numbers")
+		return
+	end
+
 	if (name) then
 		local m = sepgp:findGuildMember(name)
 		if (not m) then 
@@ -33,7 +38,7 @@ function sepgp:overrideRank(name, rank)
 			return
 		end
 
-		local _,_,prefix,old_rank,suffix = string.find(m.officernote or "","(.*)%[(.+)%](.*)")
+		local _,_,prefix,old_rank,suffix = string.find(m.officernote,"(.*)%[(.+)%](.*)")
 		if (not prefix) then
 			prefix = ""
 			suffix = m.officernote
@@ -48,16 +53,13 @@ function sepgp:overrideRank(name, rank)
 
 		self:defaultPrint(string.format("%s rank is now recognized as %s.",name,rank))
 		self:refreshPRTablets()
-
 	end
 end
 
 function sepgp:parseRank(name,officernote)
   if (officernote) then
-    local _,_,_,rank,_ = string.find(officernote or "","(.*)%[(.+)%](.*)")
-    if type(rank)=="string" and (string.len(rank) < 13) then
-			return rank
-    end
+    local _,_,_,rank,_ = string.find(officernote,"(.*)%[(.+)%](.*)")
+		return rank
   else
 		local m = sepgp:findGuildMember(name)
 		if (m) then return sepgp:parseRank(name, m.officernote) end

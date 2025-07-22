@@ -1836,7 +1836,7 @@ function sepgp:captureBid(text, sender)
     oskw_found = string.find(text,f)
     if (oskw_found) then break end
   end
-  if (mskw_found) or (oskw_found) and
+  if ((mskw_found) or (oskw_found)) and
     self:inRaid(sender) and bids_blacklist[sender] == nil then
 			local spec = mskw_found and 'MS' or 'OS'
 			local rank = self:parseRank(m.name,m.officernote) or m.rank
