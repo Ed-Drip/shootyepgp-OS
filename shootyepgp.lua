@@ -1613,10 +1613,13 @@ end
 -- Alts
 ---------------
 function sepgp:parseAlt(name,officernote)
-	local m = sepgp:findGuildMember(name)
-	if not m then return nil end
+	if not officernote then
+		local m = sepgp:findGuildMember(name)
+		if not m then return nil end
+		officernote = m.officernote
+	end
 
-	local _,_,_,main,_ = string.find(m.officernote or "","(.*){(%a%a%a+)}(.*)")
+	local _,_,_,main,_ = string.find(officernote,"(.*){(%a%a%a+)}(.*)")
 	if type(main)=="string" and (string.len(main) < 13) then
 		main = sepgp:findGuildMember(main)
 		if main then

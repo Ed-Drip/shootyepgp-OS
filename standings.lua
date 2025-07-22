@@ -375,8 +375,9 @@ function sepgp_standings:BuildStandingsTable()
   sepgp.alts = {}
   for i = 1, GetNumGuildMembers(1) do
     local name, rank, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
-    local ep = (sepgp:get_ep_v3(name,officernote) or 0) 
-    local gp = (sepgp:get_gp_v3(name,officernote) or sepgp.VARS.basegp)
+		local ep, gp = sepgp:parse_epgp_v3(officernote)
+    -- local ep = (sepgp:get_ep_v3(name,officernote) or 0) 
+    -- local gp = (sepgp:get_gp_v3(name,officernote) or sepgp.VARS.basegp)
     local main, main_class, main_rank = sepgp:parseAlt(name,officernote)
     if (main) then
       if ((self._playerName) and (name == self._playerName)) then
