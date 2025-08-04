@@ -1488,6 +1488,10 @@ function sepgp:GetLootItemNames()
 end
 
 function sepgp:GetBossEpValueByLoot(bosses, lootNames)
+		if not bosses or not lootNames then
+				return nil
+		end
+
     local i = 1
     while bosses[i] do
         if bosses[i][3] ~= nil and sepgp:ArraysIntersect(bosses[i][3], lootNames) then
@@ -1518,7 +1522,7 @@ function sepgp:ArraysIntersect(array1, array2)
 end
 
 function sepgp:GetBossEpValueByTarget(bosses, target)
-    if not target then
+    if not bosses or not target then
       return nil
     end
 
