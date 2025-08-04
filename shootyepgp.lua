@@ -1451,8 +1451,9 @@ function sepgp:ShowAwardEpReminderIfNeeded()
   local inInstance, instanceType = IsInInstance()
   if (inInstance) and (instanceType == "raid") then
     local zoneLoc = GetRealZoneText()
-    if not sepgp.VARS.instanceEpReminder or sepgp.VARS.instanceEpReminder[1] ~= zoneLoc then
-      sepgp.VARS.instanceEpReminder = { zoneLoc, sepgp.boss_list[zoneLoc] }
+		local bosses = sepgp.boss_list[zoneLoc]
+    if bosses and (not sepgp.VARS.instanceEpReminder or sepgp.VARS.instanceEpReminder[1] ~= zoneLoc) then
+      sepgp.VARS.instanceEpReminder = { zoneLoc, bosses }
     end
 
     if sepgp.VARS.instanceEpReminder then 
