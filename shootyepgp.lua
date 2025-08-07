@@ -227,13 +227,6 @@ function sepgp:buildMenu()
       order = 30,
       hidden = function() return not (admin()) end,
     }
-    options.args["override_rank"] = {
-      type = "group",
-      name = "Override Rank",
-      desc = "Select Member to override rank for loot priority",
-      order = 31,
-      hidden = function() return not (admin()) end,
-    }
     options.args["ep_reserves"] = {
       type = "text",
       name = L["+EPs to Reserves"],
@@ -307,12 +300,19 @@ function sepgp:buildMenu()
       get = function() return sepgp_main end,
       set = function(v) sepgp_main = (sepgp:verifyGuildMember(v)) end,
     }    
+    options.args["override_rank"] = {
+      type = "group",
+      name = "Override Rank",
+      desc = "Select Member to override rank for loot priority",
+      order = 71,
+      hidden = function() return not (admin()) end,
+    }
     options.args["raid_only"] = {
       type = "toggle",
       name = L["Raid Only"],
       desc = L["Only show members in raid."],
       order = 80,
-      get = function() return not not sepgp_raidonly end,
+      get = function() return sepgp_raidonly end,
       set = function(v) 
         sepgp_raidonly = not sepgp_raidonly
         sepgp:SetRefresh(true)
@@ -439,13 +439,14 @@ function sepgp:buildMenu()
     }
   end
   if (needInit) or (needRefresh) then
-    local members = sepgp:buildRosterTable()
-    self:debugPrint(string.format(L["Scanning %d members for EP/GP data. (%s)"],table.getn(members),(sepgp_raidonly and "Raid" or "Full")))
+    local members = sepgp:buildRosterTable(sepgp_raidonly, true)
+    -- self:debugPrint(string.format(L["Scanning %d members for EP/GP data. (%s)"],table.getn(members),(sepgp_raidonly and "Raid" or "Full")))
     options.args["ep"].args = sepgp:buildClassMemberTable(members,L["Account EPs to %s."],"<EP>",function(n, v) sepgp:givename_ep(n, tonumber(v)) sepgp:refreshPRTablets() end)
     options.args["gp"].args = sepgp:buildClassMemberTable(members,L["Account GPs to %s."],"<GP>",function(n, v) sepgp:givename_gp(n, tonumber(v)) sepgp:refreshPRTablets() end)
+		members = sepgp:buildRosterTable(false, false)
     options.args["override_rank"].args = sepgp:buildClassMemberTable(members,"Change %s rank","<Rank>",function(n, v) sepgp:overrideRank(n, v) end)
-    if (needInit) then needInit = false end
-    if (needRefresh) then needRefresh = false end
+    needInit = false
+    needRefresh = false
   end
   return options
 end
@@ -1138,10 +1139,12 @@ end
 -- EPGP Operations
 ---------------------
 function sepgp:parse_epgp_v3(officernote)
+	officernote = officernote or ""
 	local _,_,ep,gp = string.find(officernote,".*{(%d+):(%d+)}.*")
-	ep = ep and tonumber(ep) or 0
-	gp = gp and tonumber(gp) or sepgp.VARS.basegp
-	return ep,gp
+	res_ep = ep and tonumber(ep) or 0
+	res_gp = gp and tonumber(gp) or sepgp.VARS.basegp
+	res_exists = (ep and gp)
+	return res_ep, res_gp, res_exists
 end
 
 function sepgp:format_epgp_v3(ep,gp)
@@ -1151,9 +1154,9 @@ function sepgp:format_epgp_v3(ep,gp)
 end
 
 function sepgp:init_notes_v3(guild_index,name,officernote)
-  local ep,gp = self:get_ep_v3(name,officernote), self:get_gp_v3(name,officernote)
-  if not (ep and gp) then
-    local initstring = string.format("{%d:%d}",0,sepgp.VARS.basegp)
+  local ep,gp,exists = self:parse_epgp_v3(officernote)
+  if not exists then
+    local initstring = self:format_epgp_v3(0,sepgp.VARS.basegp)
     local newnote = string.format("%s%s",officernote,initstring)
     newnote = string.gsub(newnote,"(.*)({%d+:%d+})(.*)",sanitizeNote)
     officernote = newnote
@@ -1538,10 +1541,10 @@ function sepgp:GetBossEpValueByTarget(bosses, target)
     return nil  -- Boss not found
 end
 
-function sepgp:buildRosterTable()
+function sepgp:buildRosterTable(raid_only, check_ep)
   local g, r = { }, { }
   local numGuildMembers = GetNumGuildMembers(1)
-  if (sepgp_raidonly) and GetNumRaidMembers() > 0 then
+  if (raid_only) and GetNumRaidMembers() > 0 then
     for i = 1, GetNumRaidMembers(true) do
       local name, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(i) 
       if (name) then
@@ -1553,28 +1556,25 @@ function sepgp:buildRosterTable()
   for i = 1, numGuildMembers do
     local member_name,_,_,level,class,_,note,officernote,_,_ = GetGuildRosterInfo(i)
     if member_name and member_name ~= "" then
-      local main, main_class, main_rank = self:parseAlt(member_name,officernote)
+			local ep, gp = self:parse_epgp_v3(officernote)
+			local is_ep_level = check_ep and ep > 100 or not check_ep
       local is_raid_level = tonumber(level) and level >= sepgp.VARS.minlevel
-      if (main) then
-        if ((self._playerName) and (name == self._playerName)) then
-          if (not sepgp_main) or (sepgp_main and sepgp_main ~= main) then
-            sepgp_main = main
-            self:defaultPrint(L["Your main has been set to %s"],sepgp_main)
-          end
-        end
-        main = C:Colorize(BC:GetHexColor(main_class), main)
-        sepgp.alts[main] = sepgp.alts[main] or {}
-        sepgp.alts[main][member_name] = class
-      end
-      if (sepgp_raidonly) and next(r) then
-        if r[member_name] and is_raid_level then
-          table.insert(g,{["name"]=member_name,["class"]=class})
-        end
-      else
-        if is_raid_level then
-          table.insert(g,{["name"]=member_name,["class"]=class})
-        end
-      end
+      -- local main, main_class, main_rank = self:parseAlt(member_name,officernote)
+      -- if (main) then
+      --   if ((self._playerName) and (name == self._playerName)) then
+      --     if (not sepgp_main) or (sepgp_main and sepgp_main ~= main) then
+      --       sepgp_main = main
+      --       self:defaultPrint(L["Your main has been set to %s"],sepgp_main)
+      --     end
+      --   end
+      --   main = C:Colorize(BC:GetHexColor(main_class), main)
+      --   sepgp.alts[main] = sepgp.alts[main] or {}
+      --   sepgp.alts[main][member_name] = class
+      -- end
+			if is_ep_level and is_raid_level 
+					and ((raid_only) and r[member_name] or not raid_only) then
+						table.insert(g,{["name"]=member_name,["class"]=class})
+			end
     end
   end
   return g
