@@ -65,11 +65,11 @@ local zones = {
       "Fireproof Cloak",
       "Fireguard Shoulders"
     }},
-    {"Ragnaros", 100}
+    {"Ragnaros", 100},
     -- New Bosses:
-    {"Incindis", 40}
-    {"Basalthar", 40}
-    {"Smoldaris", 40}
+    {"Incindis", 40},
+    {"Basalthar", 40},
+    {"Smoldaris", 40},
     {"Sorcerer-Thane Thaurissan", 40}
   },
 
