@@ -737,30 +737,31 @@ local prices = {
     -------------------
     --- Molten Core ---
     -------------------
+	-- 1 = 9 EP
     -- New Bosses:
     -- Incindis:
-  -- [58205] = {0,"T1"}; --Primal Flameslinger
-  -- [58206] = {0,"T1"}; --Idol of the Forgotten Wilds
-  -- [58207] = {0,"T1"}; --Fist of the Flamewaker
-  -- [58208] = {0,"T1"}; --Shroud of Flowing Magma
-  -- [58209] = {0,"T1"}; --Sizzling Pyrestone Aureole
+  [58205] = {24,"T1"}; --Primal Flameslinger
+  [58206] = {2,"T1"}; --Idol of the Forgotten Wilds
+  [58207] = {20,"T1"}; --Fist of the Flamewaker
+  [58208] = {24,"T1"}; --Shroud of Flowing Magma
+  [58209] = {4,"T1"}; --Sizzling Pyrestone Aureole
     -- Basalthar/Sorcerer-Thane Thaurissan:
- -- [58212] = {0,"T1"}; --Treads of Scalding Rage
- -- [58210] = {0,"T1"}; --Grasps of Sundering Power
- -- [58242] = {0,"T1"}; --Sulfuron Aegis
- -- [58238] = {0,"T1"}; --Runed Wardstone
- -- [58237] = {0,"T1"}; --Emberwoven Binding Garments
- -- [58215] = {0,"T1"}; --Ash-Forged Greaves
+  [58212] = {24,"T1"}; --Treads of Scalding Rage
+  [58210] = {16,"T1"}; --Grasps of Sundering Power
+  [58242] = {24,"T1"}; --Sulfuron Aegis
+  [58238] = {8,"T1"}; --Runed Wardstone
+  [58237] = {28,"T1"}; --Emberwoven Binding Garments
+  [58215] = {18,"T1"}; --Ash-Forged Greaves
     -- Smoldaris:
- -- [58241] = {0,"T1"}; --Totem of Eruption
- -- [58213] = {0,"T1"}; --Smoldaris’ Fractured Eye
- -- [58211] = {0,"T1"}; --Molten Emberstone
- -- [58239] = {0,"T1"}; --Overheated Skyrazors
+  [58241] = {2,"T1"}; --Totem of Eruption
+  [58213] = {20,"T1"}; --Smoldaris’ Fractured Eye
+  [58211] = {24,"T1"}; --Molten Emberstone
+  [58239] = {24,"T1"}; --Overheated Skyrazors
     -- Sorcerer-Thane Thaurissan:
- -- [58241] = {0,"T1"}; --[Leggings of the Deep Delve   
- -- [58241] = {0,"T1"}; --Libram of Final Judgement
- -- [58241] = {0,"T1"}; --Sigil of Ancient Accord
- -- [58241] = {0,"T1"}; --Modrag'zan, Heart of the Mountain
+  [58243] = {24,"T1"}; --[Leggings of the Deep Delve   
+  [58240] = {2,"T1"}; --Libram of Final Judgement
+  [58244] = {24,"T1"}; --Sigil of Ancient Accord
+  [58214] = {32,"T1"}; --Modrag'zan, Heart of the Mountain
 
     -- Old Bosses loot:
   [16665] = {0,"T1"}; --Tome of Tranquilizing Shot
