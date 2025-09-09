@@ -1,3 +1,6 @@
+# Adjusted for < Oakshire > Guild (Twow)
+Can I poop in your butt?
+
 # shootyepgp
 Guild Helper addon for EPGP loot system in WoW (1.12)
 
