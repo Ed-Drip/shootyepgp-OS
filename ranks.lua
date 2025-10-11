@@ -1,10 +1,8 @@
 sepgp.rank_prio = {
-	{'Guild Master(MS)', 'Officer(MS)', 'Veteran(MS)', 'Core Raider(MS)'},
-	{'Guild Master(OS)', 'Officer(OS)', 'Veteran(OS)', 'Core Raider(OS)'},
-	{'Raider(MS)', 'Alt(MS)>5000', 'Cossack(MS)>100'},
-	{'Raider(OS)', 'Alt(OS)>5000', 'Cossack(OS)>100'},
-	{'Cossack(MS)', 'Newcomer(MS)', 'Alt(MS)', 'Muted(MS)'},
-	{'Cossack(OS)', 'Newcomer(OS)', 'Alt(OS)', 'Muted(OS)'},
+	{'Professor Oak(MS)', 'Branch Manager(MS)', 'Oakaholic(MS)', 'Big Oak(MS)'},
+	{'Professor Oak(OS)', 'Branch Manager(OS)', 'Oakaholic(OS)', 'Big Oak(OS)'},
+	{'Lil Oak(MS)', 'Twiglet(MS)', 'Sprout(MS)', 'Mulch(MS)'},
+	{'Lil Oak(OS)', 'Twiglet(OS)', 'Sprout(OS)', 'Mulch(OS)'},
 }
 
 function sepgp:rankPrio_index(rank, spec, ep)
